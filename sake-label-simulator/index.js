@@ -4,6 +4,17 @@ const createOrbitViewer = require('three-orbit-viewer')(THREE)
 const glslify = require('glslify')
 const dat = require('dat.gui')
 
+let params = {
+  'Brewing Region': 'Nagano',
+  'Sake Style': 'Daiginjo',
+  'Filtering Style': 'Namazake',  // 'filtering' name ok?
+  'Semai Buai': 50,
+  'Sake Meter Value': 0.0
+}
+let brewingRegionOptions = ['Nagano', 'Fukushima', 'Akita', 'Ine']
+let sakeStyleOptions = ['Daiginjo', 'Ginjo', 'Junmai', 'Honjozo', 'Futsushu']
+let filteringStyleOptions = ['Namazake', 'Hiyaoroshi', 'Nigori', 'Doburoku', 'Double Filtered']
+
 // label text
 let dLabelText = document.createElement('div')
 dLabelText.setAttribute('id', 'label-text')
@@ -23,37 +34,30 @@ dLabelText.appendChild(pFourth)
 //add GUI
 const gui = new dat.GUI({name: 'Sake Label Generator'})
 const sakeParams = {
-  'Brewing Region': 'Niigata',
+  'Brewing Region': 'Nagano',
   'Sake Style': 'Daiginjo',
   'Filtering Style': 'Namazake',  //?: more accurate name for prop? see sake book
   'Semai Buai': 50,
   'Sake Meter Value': 0.0
 }
-const c1 = gui.add(sakeParams, 'Brewing Region').options('Niigata', 'Nagano', 'Fukushima', 'Hiroshima', 'Akita', 'Ine')
-const c2 = gui.add(sakeParams, 'Sake Style').options('Daiginjo', 'Ginjo', 'Junmai', 'Honjozo', 'Futsushu')
-const c3 = gui.add(sakeParams, 'Filtering Style').options('Namazake', 'Hiyaoroshi', 'Nigori', 'Doburoku', 'Double Filtered')
+const c1 = gui.add(sakeParams, 'Brewing Region', brewingRegionOptions)
+const c2 = gui.add(sakeParams, 'Sake Style', sakeStyleOptions)
+const c3 = gui.add(sakeParams, 'Filtering Style', filteringStyleOptions)
 const c4 = gui.add(sakeParams, 'Semai Buai', 10, 100, 10)
 const c5 = gui.add(sakeParams, 'Sake Meter Value', -4.0, 10.0, 1.0)   //?: confirm SMV range in book
 const c6 = gui.add({'Export Label Image': function() {
   console.log('Fake Export!')
 }}, 'Export Label Image')
 c1.onChange(d => {
-  // Change gradient background of canvas.
-  console.log("c1", d)
-  if (d == "Niigata") {
-/*
-background:
-        linear-gradient(45deg, rgba(255,0,0,.5), rgba(0,0,255,.5)),
-        url('img/noise.svg');
-*/
-
-  } else if (d == "Nagano") {
-    console.log("In Nagano!")
-    $('body').removeClass().addClass('color2');
-  }
+  $('body').removeClass().addClass(d)
+  $('#lt-second').text(d)
 })
-
-
+c2.onChange(d => {
+  // presets for other attributes?
+})
+c3.onChange(d => {
+  // blurring
+})
 
 const initLabelText = function() {
   document.body.appendChild(dLabelText)
@@ -62,7 +66,7 @@ const initLabelText = function() {
   pThird.textContent = "精米歩合 " + c4.getValue() + "%"
   pFourth.textContent = "日本酒度 " + c5.getValue()
   //?: do this here?
-  $('body').addClass('color1')
+  $('body').addClass('Nagano')
 }
 initLabelText()
 
