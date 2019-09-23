@@ -16,16 +16,16 @@ float turbulence( vec3 p ) {
 }
 
 void main() {
-  // vUv = uv;
-  // float updateTime = iGlobalTime / 3.0;
-  // float noise = 10.0 *  -.10 * turbulence( .05 * normal + updateTime );
-  // float b = 5.0 * pnoise( 0.05 * position + vec3( 2.0 * updateTime ), vec3( 100.0 ) );
-  // float displacement = noise + b;
-  // vec3 newPosition = position + normal * displacement;
-  // gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+  vUv = uv;
+  float updateTime = iGlobalTime / 3.0;
+  float noise = 10.0 *  -.10 * turbulence( .05 * normal + updateTime );
+  float b = 5.0 * pnoise( 0.05 * position + vec3( 2.0 * updateTime ), vec3( 100.0 ) );
+  float displacement = noise + b;
+  vec3 newPosition = position + normal * displacement;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
 
   //
 
-  vUv = uv;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  // vUv = uv;
+  // gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }
