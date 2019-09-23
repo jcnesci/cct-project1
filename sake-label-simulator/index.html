@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>sake-label-generator</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+  <link rel="manifest" href="img/favicon/site.webmanifest">
+  <link rel="mask-icon" href="img/favicon/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <style type="text/css">
+    body {
+      background-repeat: no-repeat;
+      /* Interesting blend modes: */
+      /*background-blend-mode: color-burn;*/
+      /*background-blend-mode: difference;*/
+      /*background-blend-mode: color;*/
+      /*background-blend-mode: hard-light;*/
+    }
+    body.color1 {
+      background:
+        linear-gradient(45deg, rgba(255,0,0,.5), rgba(0,0,255,.5)),
+        url('img/noise.svg');
+      background-blend-mode: hard-light;
+    }
+    body.color2 {
+      background:
+        linear-gradient(45deg, rgba(0,0,0,.5), rgba(255,255,255,.5)),
+        url('img/noise.svg');
+      background-blend-mode: hard-light;
+    }
+    #label-text {
+      position: absolute;
+      margin: 7% 0 0 5%;
+      color: #fcf3e3;
+      font: bold 1.6em sans-serif;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <script src="bundle.js"></script>
+</body>
+</html>
