@@ -4,25 +4,13 @@ const createOrbitViewer = require('three-orbit-viewer')(THREE)
 const glslify = require('glslify')
 const dat = require('dat.gui')
 
-// label text
-let dLabelText = document.createElement('div')
-dLabelText.setAttribute('id', 'label-text')
-let pFirst = document.createElement('p')
-pFirst.setAttribute('id', 'lt-first')
-let pSecond = document.createElement('p')
-pSecond.setAttribute('id', 'lt-second')
-let pThird = document.createElement('p')
-pThird.setAttribute('id', 'lt-third')
-let pFourth = document.createElement('p')
-pFourth.setAttribute('id', 'lt-fourth')
-dLabelText.appendChild(pFirst)
-dLabelText.appendChild(pSecond)
-dLabelText.appendChild(pThird)
-dLabelText.appendChild(pFourth)
-
-// sake Semai Buai colors
-const sb10Color = 0xffffff
-const sb100Color = 0xffd800
+let lt1,
+    lt2,
+    lt3,
+    lt4,
+    lt5
+const sb10Color = 0xffffff,
+      sb100Color = 0xffd800
 
 //add GUI
 const gui = new dat.GUI({name: 'Sake Label Generator'})
@@ -47,31 +35,55 @@ const c6 = gui.add({'Export Label Image': function() {
   console.log('Fake Export!')
 }}, 'Export Label Image')
 c1.onChange(d => {
+  // update label text
+  lt3.text(d)
+  //
   $('body').removeClass().addClass(d)
   $('#lt-second').text(d)
 })
 c2.onChange(d => {
+  // update label text
+  lt1.text(d)
   // presets for other attributes?
 })
 c3.onChange(d => {
+  // update label text
+  lt2.text(d)
   // blurring
 })
 c4.onChange(d => {
+  // update label text
+  lt4.text(d)
   // Semai Buai changes liquid's color.
   const normalized = (sakeParams['Semai Buai'] - 10.0) / 90.0
   mat.uniforms.iColorFill.value = getSemaiBuaiColor(normalized)
 })
+c5.onChange(d => {
+  // update label text
+  lt5.text(formatSVM(d))
+  // Sake Meter Value changes deformation & speed of liquid
+  const deformAmt = mapRange(sakeParams['Sake Meter Value'], -4.0, 10.0, 10.0, 1.0)
+  mat.uniforms.iDeformAmt.value = deformAmt
+  mat.uniforms.iTimeMod.value = reverseNumber(deformAmt, 1.0, 10.0);
+})
 
-const initLabelText = function() {
-  document.body.appendChild(dLabelText)
-  pFirst.textContent = c2.getValue() + " " + c3.getValue()
-  pSecond.textContent = c1.getValue()
-  pThird.textContent = "精米歩合 " + c4.getValue() + "%"
-  pFourth.textContent = "日本酒度 " + c5.getValue()
+const init = function() {
+  // TIP: use appendTo() if you want it to return the new element
+  const dLabelText = $('<div id="label-text"></div>').appendTo('body')
+  $('<p><span id="lt-1"></span> <span id="lt-2"></span></p>'+
+    '<p><span id="lt-3"></span></p>'+
+    '<p>精米歩合 <span id="lt-4"></span>%</p>'+
+    '<p>日本酒度 <span id="lt-5"></span></p>'
+    ).appendTo(dLabelText)
+  lt1 = $('#lt-1').text(c2.getValue())
+  lt2 = $('#lt-2').text(c3.getValue())
+  lt3 = $('#lt-3').text(c1.getValue())
+  lt4 = $('#lt-4').text(c4.getValue())
+  lt5 = $('#lt-5').text(formatSVM(c5.getValue()))
+
   //?: do this here?
   $('body').addClass('Nagano')
-}
-initLabelText()
+}()
 
 //our basic full-screen application and render loop
 let time = 0
@@ -112,16 +124,16 @@ app.scene.add(bubble)
 app.on('tick', dt => {
   time += dt / 1000
   mat.uniforms.iGlobalTime.value = time
-  // Sake Meter Value changes deformation & speed of liquid
-  const deformAmt = mapRange(sakeParams['Sake Meter Value'], -4.0, 10.0, 10.0, 1.0)
-  mat.uniforms.iDeformAmt.value = deformAmt
-  mat.uniforms.iTimeMod.value = reverseNumber(deformAmt, 1.0, 10.0);
 })
 
 //once texture is ready, show our bubble
 // function ready() {
 //   bubble.visible = true
 // }
+
+function formatSVM(d) {
+  return Math.sign(d) === 1 ? '+'+d : d
+}
 
 // amount: between 0.0 and 1.0
 function getSemaiBuaiColor(amount) {
