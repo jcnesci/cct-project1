@@ -25,6 +25,7 @@ precision highp float;
 varying vec2 vUv;
 uniform float iGlobalTime;
 uniform vec2 mouse;
+uniform vec3 iColorFill;
 
 void main(void) {
   vec2 uv = vUv;
@@ -35,5 +36,9 @@ void main(void) {
   float r = 1.0-sin(uv.x+uv.y);
   float g =1.0;
   float b = 1.0-cos(uv.x+uv.y);
-  gl_FragColor = vec4(r, g ,b, 1.0);
+
+  vec3 color = vec3(r, g, b);
+  color = mix(color, iColorFill, 0.5);
+
+  gl_FragColor = vec4(color, 1.0);
 }

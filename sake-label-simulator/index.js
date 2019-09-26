@@ -20,6 +20,10 @@ dLabelText.appendChild(pSecond)
 dLabelText.appendChild(pThird)
 dLabelText.appendChild(pFourth)
 
+// sake Semai Buai colors
+const sb10Color = 0xffffff
+const sb100Color = 0xffd800
+
 //add GUI
 const gui = new dat.GUI({name: 'Sake Label Generator'})
 
@@ -53,11 +57,9 @@ c3.onChange(d => {
   // blurring
 })
 c4.onChange(d => {
-  // liquid color
-})
-c5.onChange(d => {
-  // thickness (anim speed + vertex deformation)
-
+  // Semai Buai changes liquid's color.
+  const normalized = (sakeParams['Semai Buai'] - 10.0) / 90.0
+  mat.uniforms.iColorFill.value = getSemaiBuaiColor(normalized)
 })
 
 const initLabelText = function() {
@@ -93,7 +95,8 @@ const mat = new THREE.ShaderMaterial({
     // iChannel0: { type: 't', value: bgTexture },
     iGlobalTime: {type: 'f', value: 0},
     iTimeMod: {type: 'f', value: 1},
-    iDeformAmt: {type: 'f', value: sakeParams['Sake Meter Value']}
+    iDeformAmt: {type: 'f', value: sakeParams['Sake Meter Value']},
+    iColorFill: {value: new THREE.Color(0xffffff)}
   },
   defines: {
     USE_MAP: ''
@@ -109,14 +112,21 @@ app.scene.add(bubble)
 app.on('tick', dt => {
   time += dt / 1000
   mat.uniforms.iGlobalTime.value = time
-  mat.uniforms.iDeformAmt.value = mapRange(sakeParams['Sake Meter Value'], -4.0, 10.0, 10.0, 1.0)
-  mat.uniforms.iTimeMod.value = reverseNumber(mat.uniforms.iDeformAmt.value, 1.0, 10.0);
+  // Sake Meter Value changes deformation & speed of liquid
+  const deformAmt = mapRange(sakeParams['Sake Meter Value'], -4.0, 10.0, 10.0, 1.0)
+  mat.uniforms.iDeformAmt.value = deformAmt
+  mat.uniforms.iTimeMod.value = reverseNumber(deformAmt, 1.0, 10.0);
 })
 
 //once texture is ready, show our bubble
 // function ready() {
 //   bubble.visible = true
 // }
+
+// amount: between 0.0 and 1.0
+function getSemaiBuaiColor(amount) {
+  return new THREE.Color(lerpColor(sb10Color, sb100Color, amount))
+}
 
 function mapRange(value, low1, high1, low2, high2) {
     return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
@@ -126,3 +136,20 @@ function mapRange(value, low1, high1, low2, high2) {
 function reverseNumber(value, min, max) {
     return (max + min) - value;
 }
+
+// THREE.Color.lerp() stops responding after the first few frames, so I'm lerping colors myself.
+const lerpColor = function(a, b, amount) {
+    const ar = a >> 16,
+          ag = a >> 8 & 0xff,
+          ab = a & 0xff,
+
+          br = b >> 16,
+          bg = b >> 8 & 0xff,
+          bb = b & 0xff,
+
+          rr = ar + amount * (br - ar),
+          rg = ag + amount * (bg - ag),
+          rb = ab + amount * (bb - ab);
+
+    return (rr << 16) + (rg << 8) + (rb | 0);
+};
