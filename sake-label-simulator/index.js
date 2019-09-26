@@ -4,17 +4,6 @@ const createOrbitViewer = require('three-orbit-viewer')(THREE)
 const glslify = require('glslify')
 const dat = require('dat.gui')
 
-let params = {
-  'Brewing Region': 'Nagano',
-  'Sake Style': 'Daiginjo',
-  'Filtering Style': 'Namazake',  // 'filtering' name ok?
-  'Semai Buai': 50,
-  'Sake Meter Value': 0.0
-}
-let brewingRegionOptions = ['Nagano', 'Fukushima', 'Akita', 'Ine']
-let sakeStyleOptions = ['Daiginjo', 'Ginjo', 'Junmai', 'Honjozo', 'Futsushu']
-let filteringStyleOptions = ['Namazake', 'Hiyaoroshi', 'Nigori', 'Doburoku', 'Double Filtered']
-
 // label text
 let dLabelText = document.createElement('div')
 dLabelText.setAttribute('id', 'label-text')
@@ -33,13 +22,18 @@ dLabelText.appendChild(pFourth)
 
 //add GUI
 const gui = new dat.GUI({name: 'Sake Label Generator'})
-const sakeParams = {
+
+let sakeParams = {
   'Brewing Region': 'Nagano',
   'Sake Style': 'Daiginjo',
-  'Filtering Style': 'Namazake',  //?: more accurate name for prop? see sake book
+  'Filtering Style': 'Namazake',  // 'filtering' name ok?
   'Semai Buai': 50,
-  'Sake Meter Value': 0.0
+  'Sake Meter Value': 3.0
 }
+let brewingRegionOptions = ['Nagano', 'Fukushima', 'Akita', 'Ine']
+let sakeStyleOptions = ['Daiginjo', 'Ginjo', 'Junmai', 'Honjozo', 'Futsushu']
+let filteringStyleOptions = ['Namazake', 'Hiyaoroshi', 'Nigori', 'Doburoku', 'Double Filtered']
+
 const c1 = gui.add(sakeParams, 'Brewing Region', brewingRegionOptions)
 const c2 = gui.add(sakeParams, 'Sake Style', sakeStyleOptions)
 const c3 = gui.add(sakeParams, 'Filtering Style', filteringStyleOptions)
@@ -57,6 +51,13 @@ c2.onChange(d => {
 })
 c3.onChange(d => {
   // blurring
+})
+c4.onChange(d => {
+  // liquid color
+})
+c5.onChange(d => {
+  // thickness (anim speed + vertex deformation)
+
 })
 
 const initLabelText = function() {
@@ -90,7 +91,8 @@ const mat = new THREE.ShaderMaterial({
   fragmentShader: glslify('./frag.glsl'),
   uniforms: {
     // iChannel0: { type: 't', value: bgTexture },
-    iGlobalTime: { type: 'f', value: 0 }
+    iGlobalTime: {type: 'f', value: 0},
+    iDeformAmt: {type: 'f', value: sakeParams['Sake Meter Value']}
   },
   defines: {
     USE_MAP: ''
@@ -106,9 +108,14 @@ app.scene.add(bubble)
 app.on('tick', dt => {
   time += dt / 1000
   mat.uniforms.iGlobalTime.value = time
+  mat.uniforms.iDeformAmt.value = map_range(sakeParams['Sake Meter Value'], -4, 10, 10, 0)
 })
 
 //once texture is ready, show our bubble
 // function ready() {
 //   bubble.visible = true
 // }
+
+function map_range(value, low1, high1, low2, high2) {
+    return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
+}
