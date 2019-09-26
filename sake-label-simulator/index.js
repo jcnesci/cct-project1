@@ -92,6 +92,7 @@ const mat = new THREE.ShaderMaterial({
   uniforms: {
     // iChannel0: { type: 't', value: bgTexture },
     iGlobalTime: {type: 'f', value: 0},
+    iTimeMod: {type: 'f', value: 1},
     iDeformAmt: {type: 'f', value: sakeParams['Sake Meter Value']}
   },
   defines: {
@@ -108,7 +109,8 @@ app.scene.add(bubble)
 app.on('tick', dt => {
   time += dt / 1000
   mat.uniforms.iGlobalTime.value = time
-  mat.uniforms.iDeformAmt.value = map_range(sakeParams['Sake Meter Value'], -4, 10, 10, 0)
+  mat.uniforms.iDeformAmt.value = mapRange(sakeParams['Sake Meter Value'], -4.0, 10.0, 10.0, 1.0)
+  mat.uniforms.iTimeMod.value = reverseNumber(mat.uniforms.iDeformAmt.value, 1.0, 10.0);
 })
 
 //once texture is ready, show our bubble
@@ -116,6 +118,11 @@ app.on('tick', dt => {
 //   bubble.visible = true
 // }
 
-function map_range(value, low1, high1, low2, high2) {
+function mapRange(value, low1, high1, low2, high2) {
     return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
+}
+
+// If range is 1-to-10 and you have 2, the reverse is 9 (1 away from opposite edge)
+function reverseNumber(value, min, max) {
+    return (max + min) - value;
 }
