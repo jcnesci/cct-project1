@@ -94,9 +94,11 @@ const app = createOrbitViewer({
   position: new THREE.Vector3(0.85, 1, 50)
 })
 
-// const bgTexture = new THREE.TextureLoader().load("img/lady-face.jpg", ready)
-// bgTexture.format = THREE.RGBFormat
-// app.scene.background = bgTexture
+console.log(app.engine)
+
+const texture = new THREE.TextureLoader().load("img/nagano-bg.png", ready)
+texture.format = THREE.RGBFormat
+// app.scene.background = texture
 
 //here we create a custom shader with glslify
 //note USE_MAP is needed to get a 'uv' attribute
@@ -104,11 +106,12 @@ const mat = new THREE.ShaderMaterial({
   vertexShader: glslify('./vert.glsl'),
   fragmentShader: glslify('./frag.glsl'),
   uniforms: {
-    // iChannel0: { type: 't', value: bgTexture },
     iGlobalTime: {type: 'f', value: 0},
     iTimeMod: {type: 'f', value: 1},
     iDeformAmt: {type: 'f', value: sakeParams['Sake Meter Value']},
-    iColorFill: {value: new THREE.Color(0xffffff)}
+    iColorFill: {value: new THREE.Color(0xffffff)},
+    iResolution: {value: new THREE.Vector2(app.engine.width, app.engine.height)},
+    iChannel0: { type: 't', value: texture }
   },
   defines: {
     USE_MAP: ''
@@ -117,7 +120,7 @@ const mat = new THREE.ShaderMaterial({
 
 const geo = new THREE.IcosahedronGeometry( 20, 5 )
 const bubble = new THREE.Mesh(geo, mat)
-bubble.visible = true
+bubble.visible = false
 app.scene.add(bubble)
 
 //provide our shader with iGlobalTime for cool effects
@@ -127,9 +130,9 @@ app.on('tick', dt => {
 })
 
 //once texture is ready, show our bubble
-// function ready() {
-//   bubble.visible = true
-// }
+function ready() {
+  bubble.visible = true
+}
 
 function formatSVM(d) {
   return Math.sign(d) === 1 ? '+'+d : d
