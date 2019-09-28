@@ -30,6 +30,7 @@
 precision highp float;
 
 varying vec2 vUv;
+varying vec3 vColor;
 uniform float iGlobalTime;
 uniform vec2 mouse;
 uniform vec3 iColorFill;
@@ -44,6 +45,17 @@ vec3 tex(vec2 uv) {
   return texture2D(iChannel0, uv).rgb;
 }
 
+//  Function from Iñigo Quiles
+//  https://www.shadertoy.com/view/MsS3Wc
+vec3 hsb2rgb( in vec3 c ){
+  vec3 rgb = clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),
+                           6.0)-3.0)-1.0,
+                   0.0,
+                   1.0 );
+  rgb = rgb*rgb*(3.0-2.0*rgb);
+  return c.z * mix( vec3(1.0), rgb, c.y);
+}
+
 void main(void) {
   vec2 uv = vUv;
 
@@ -53,19 +65,29 @@ void main(void) {
     uv.x += 0.8 / i *cos(i*1.5* uv.y + iGlobalTime) -cos(i*1.5* uv.y + iGlobalTime);
     uv.y +=  0.8 / i * sin(i*2.5* uv.x + iGlobalTime) - sin(i*2.5* uv.y + iGlobalTime);
   }
-  float r = 1.0-sin(uv.x+uv.y);
-  float g =1.0;
-  float b = 1.0-cos(uv.x+uv.y);
-  vec3 color = vec3(r, g, b);
+  // OLD
+  // float r = 1.0-sin(uv.x+uv.y);
+  // float g =1.0;
+  // float b = 1.0-cos(uv.x+uv.y);
+  // vec3 color = vec3(r, g, b);
 
-  // custom
-  color = mix(color, iColorFill, 0.5);
+  // // custom
+  // color = mix(color, iColorFill, 0.5);
 
-  // hash blur
-  float texelSize = 1.0 / iResolution.x;
-  float aspect = iResolution.x / iResolution.y;
-  float radius = 1.0 * texelSize;
-  vec3 blurColor = blur(vUv, radius, aspect);
+  // // hash blur
+  // float texelSize = 1.0 / iResolution.x;
+  // float aspect = iResolution.x / iResolution.y;
+  // float radius = 1.0 * texelSize;
+  // vec3 blurColor = blur(vUv, radius, aspect);
 
-  gl_FragColor = vec4(mix(color, blurColor, 0.8), 1.0);
+  // gl_FragColor = vec4(mix(color, blurColor, 0.8), 1.0);
+
+  // NEW
+  // float h = 51./360.;
+  // float s = clamp(sin(uv.x+uv.y), 0., 1.);
+  // float b = clamp(cos(uv.x+uv.y), 0., 1.);
+  // vec3 newColor = hsb2rgb(vec3(h, s, b));
+  // gl_FragColor = vec4(newColor, 1.0);
+  // NEW2
+  gl_FragColor = vec4(vColor, 1.0);
 }
